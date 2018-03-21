@@ -54,23 +54,35 @@ print 'Status:         ', 'Up to date' if new_version == current_version else 'F
 print '-' * 32
 
 if new_version != current_version:
+  # Clone the wire-emails project
   os.system('git clone https://github.com/wireapp/wire-emails.git')
   os.chdir(emails)
-  print os.getcwd()
+
+  # Checkout the desired version
   os.system('git checkout %s' % new_version)
+
+  # Delete old templates folder
   if os.path.exists(templates):
     shutil.rmtree(templates)
+
+  # Move wire-emails/dist to templates
   shutil.move(dist, templates)
   if os.path.exists(css):
     shutil.rmtree(css)
 
+  # Deleted unwanted folders
   for root_, subdirs, files in os.walk(templates):
     if root_.split(os.sep)[-1] in IGNORE_DIRS:
       shutil.rmtree(root_)
 
+  # Remove the wire-emails
   shutil.rmtree(emails)
+
+  # Copy the version number
   shutil.copy(new_version_file, current_version_file)
-  os.chdir(root)
+
+  # Commit back to the branch
+  # os.chdir(root)
   # os.system('git add .')
   # os.system('git commit -m "Otto fetch emails (%s)"' % new_version)
   # os.system('git checkout -b %s' % pr_branch_name)
