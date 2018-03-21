@@ -29,6 +29,7 @@ IGNORE_DIRS = ['billing', 'marketing']
 root = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
 emails = os.path.join(root, 'wire-emails')
 templates = os.path.join(root, 'templates')
+temp = os.path.join(root, 'temp')
 css = os.path.join(templates, 'css')
 dist = os.path.join(emails, 'dist')
 new_version_file = os.path.join(root, 'new-version')
@@ -61,9 +62,9 @@ if new_version != current_version:
   # Checkout the desired version
   os.system('git checkout %s' % new_version)
 
-  # Delete old templates folder
+  # Move templates to temp
   if os.path.exists(templates):
-    shutil.rmtree(templates)
+    shutil.move(templates, temp)
 
   # Move wire-emails/dist to templates
   shutil.move(dist, templates)
@@ -75,11 +76,19 @@ if new_version != current_version:
     if root_.split(os.sep)[-1] in IGNORE_DIRS:
       shutil.rmtree(root_)
 
-  # Remove the wire-emails
-  shutil.rmtree(emails)
-
   # Copy the version number
   shutil.copy(new_version_file, current_version_file)
+
+  # Move old translations
+  for locale in os.listdir(temp):
+    new_dir = os.path.join(templates, locale)
+    old_dir = os.path.join(temp, locale)
+    if not os.path.exists(new_dir):
+      shutil.move(old_dir, new_dir)
+
+  # Remove the wire-emails and temp
+  shutil.rmtree(emails)
+  shutil.rmtree(temp)
 
   # Commit back to the branch
   # os.chdir(root)
