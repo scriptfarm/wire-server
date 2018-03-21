@@ -247,6 +247,7 @@ executable galley-journaler
         amazonka
       , amazonka-sqs
       , base
+      , brig-types
       , galley
       , HsOpenSSL
       , optparse-applicative
